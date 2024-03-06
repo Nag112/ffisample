@@ -22,3 +22,22 @@ dev_dependencies:
   
 flutter:
   uses-material-design: true
+
+linter:
+  ignore:
+    - "lib/generated/**"
+    - "lib/bindings/**"
+    - "lib/protos/**"
+    - "lib/ffi/**"
+
+ffigen:
+  name: 'GameBindings'
+  description: 'Bindings for the Sudoku game.'
+  output: 'lib/bindings/game_bindings.dart'
+  headers:
+    entry-points:
+      - 'include/*.h'
+
+assets:
+  - include/*.h
+  - include/*.so

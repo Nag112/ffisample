@@ -1,0 +1,7 @@
+ffigen:
+  name: 'GameBindings'
+  description: 'Bindings for the Sudoku game.'
+  output: 'lib/bindings/game_bindings.dart'
+  headers:
+    entry-points:
+      - 'lib/include/libgame.h'

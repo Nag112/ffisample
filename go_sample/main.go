@@ -1,6 +1,8 @@
 package main
 
 import (
+  "C"
+  "fmt"
   "ffi.com/go_sample/sudoku"
   "google.golang.org/protobuf/proto"
 )
@@ -22,4 +24,8 @@ func GetSerializedPuzzle() *C.char {
     return nil
   }
   return C.CString(string(data)) 
+}
+
+func main() {
+  fmt.Println("Compiled as shared library for FFI, not intended to run standalone.")
 }
