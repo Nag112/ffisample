@@ -1,9 +1,8 @@
-import 'package:ffi/ffi.dart';
+// ignore_for_file: avoid_print, 
+import 'package:ffi_sample/ffi_service.dart';
 import 'package:ffi_sample/generated/sudoku.pb.dart';
 import 'package:flutter/material.dart';
-// import bindings
 import 'package:ffi_sample/bindings/game_bindings.dart';
-import 'dart:ffi' as ffi;
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -18,21 +17,11 @@ class _MyHomePageState extends State<MyHomePage> {
   String newPuzzle = "";
   int id = 0;
   late GameBindings gameBindings;
+  var ffiService = FFIService();
 
-  void _incrementCounter() {
+  void getNewPuzzle() {
     try {
-      // print time
-      print(DateTime.now());
-      ffi.Pointer<ffi.Char> temp = gameBindings.GetSerializedPuzzle();
-      newPuzzle = temp.cast<Utf8>().toDartString();
-      SudokuPuzzle puzzle = SudokuPuzzle.fromBuffer(newPuzzle.codeUnits);
-      newPuzzle = puzzle.puzzle;
-      id = puzzle.id;
-      setState(() {
-        print("got new puzzle: at ${DateTime.now()}");
-      });
-      // print time
-      print("AFter ${DateTime.now()}");
+      ffiService.getPuzzle();
     } catch (e, s) {
       print("Error: $e and $s");
     }
@@ -41,9 +30,15 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    // get path to the dynamic library from assets
-    var dyLib = ffi.DynamicLibrary.open('libgame.so');
-    gameBindings = GameBindings(dyLib);
+    ffiService.init().then((value) {
+          ffiService.newStream.listen((event) {
+        setState(() {
+          SudokuPuzzle sudoku = SudokuPuzzle.fromBuffer(event.codeUnits);
+          newPuzzle = sudoku.puzzle;
+          print("got new puzzle: at ${DateTime.now()}");
+        });
+      });
+});
   }
 
   @override
@@ -58,11 +53,16 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'You have pushed the button this many times:',
+              'latest puzzle:',
             ),
             Text(
               newPuzzle,
-              style: Theme.of(context).textTheme.headlineSmall,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue
+              ),
+              
             ),
             Text(
               "$id",
@@ -72,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: getNewPuzzle,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
